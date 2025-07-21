@@ -1,0 +1,27 @@
+{
+  "name": "@repo/db",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  
+  "exports": {
+    ".": "./dist/index.js",
+    "./src": "./dist/index.js",
+    "./src/types": "./dist/types.js",
+    "./src/*": "./dist/*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "db:generate": "prisma generate"
+  },
+  
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "6.2.1",
+    "prisma": "^6.2.1"
+  }
+}
