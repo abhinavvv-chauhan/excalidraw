@@ -138,7 +138,7 @@ app.get("/shapes/:roomSlug", async (req: Request, res: Response): Promise<void> 
                 createdAt: "asc",
             },
         });
-        
+        //@ts-ignore
         const parsedShapes = shapes.map(shape => JSON.parse(shape.data as string));
 
         res.json({ shapes: parsedShapes });
