@@ -1,12 +1,12 @@
 import { RoomCanvas } from "@/components/RoomCanvas";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-export default async function CanvasPage({params}:{
+export default function CanvasPage({ params }: {
     params: {
         roomId: string
     }
-}){
-    const roomId = (await params).roomId;
+}) {
+    const roomId = params.roomId;
     
     return (
         <ProtectedRoute>
