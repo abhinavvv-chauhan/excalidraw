@@ -19,7 +19,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
             router.push(`/canvas/${personalSlug}`);
         }
     }
-  }, []);
+  }, [isSignin, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,9 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
 
     const endpoint = isSignin ? 'http://localhost:3001/signin' : 'http://localhost:3001/signup';
     
-    const body = isSignin ? { username: email, password } : { username: email, password, name };
+    const body = isSignin 
+      ? { username: email, password }
+      : { username: email, password, name };
 
     try {
       const response = await fetch(endpoint, {
@@ -49,8 +51,12 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
       
       router.push('/');
       
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+    } catch (err) {
+        if (err instanceof Error) {
+            setError(err.message);
+        } else {
+            setError('An unexpected error occurred');
+        }
     } finally {
       setLoading(false);
     }

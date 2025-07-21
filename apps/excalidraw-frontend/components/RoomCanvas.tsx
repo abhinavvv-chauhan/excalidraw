@@ -65,6 +65,15 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         }
     }, [textInput, textValue]);
 
+    const handleTextSubmit = useCallback(() => {
+        lastSubmitTimestamp.current = Date.now();
+        if (gameRef.current && textInput && textValue.trim()) {
+            gameRef.current.addText(textValue, textInput.worldX, textInput.worldY);
+        }
+        setTextInput(null);
+        setTextValue("");
+    }, [textInput, textValue]);
+
     const handleCanvasClickForText = useCallback((event: MouseEvent) => {
         if (Date.now() - lastSubmitTimestamp.current < 100) {
             return;
@@ -91,18 +100,8 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
                 canvasEl.removeEventListener('click', handleCanvasClickForText);
             };
         }
-    }, [gameRef.current, handleCanvasClickForText]);
+    }, [handleCanvasClickForText]);
 
-    const handleTextSubmit = useCallback(() => {
-        lastSubmitTimestamp.current = Date.now();
-        if (gameRef.current && textInput && textValue.trim()) {
-            gameRef.current.addText(textValue, textInput.worldX, textInput.worldY);
-        }
-        setTextInput(null);
-        setTextValue("");
-    }, [textInput, textValue]); // Add dependencies
-
-    // ✨ FIX: This effect ensures that any active text is submitted when the user switches away from the text tool.
     useEffect(() => {
         if (selectedTool !== 'text' && textInput) {
             handleTextSubmit();
