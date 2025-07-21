@@ -16,7 +16,10 @@ import { Prisma } from '@prisma/client';
 
 const app = express();
 app.use(express.json());
-app.use(cors())
+const frontendURL = "https://excalidraw-ashy-pi.vercel.app";
+app.use(cors({
+    origin: frontendURL
+}));
 
 
 const SALT_ROUNDS = 10;
