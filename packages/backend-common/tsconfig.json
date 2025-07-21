@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",        // ← Make sure this points to ./dist
+    "rootDir": "./src",        // ← Make sure this points to ./src
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],     // ← Include only src files
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
