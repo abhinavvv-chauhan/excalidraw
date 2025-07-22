@@ -16,9 +16,10 @@ import { Prisma } from '@prisma/client';
 
 const app = express();
 app.use(express.json());
+
 const frontendURL = "https://excalidraw-ten-gamma.vercel.app";
 app.use(cors({
-    origin: true
+    origin: frontendURL
 }));
 
 
@@ -72,49 +73,49 @@ app.post("/signup", async (req: Request, res: Response): Promise<void> => {
 });
 
 app.post("/signin", async (req: Request, res: Response): Promise<void> => {
-  const parsedData = SigninSchema.safeParse(req.body);
-  if (!parsedData.success) {
-    res.status(400).json({ message: "Incorrect inputs" });
-    return;
-  }
-
-  const { username: email, password } = parsedData.data;
-
-  try {
-    const user = await prismaClient.user.findUnique({ where: { email } });
-    if (!user) {
-      res.status(403).json({ message: "Invalid email or password" });
-      return;
+    const parsedData = SigninSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        res.status(400).json({ message: "Incorrect inputs" });
+        return;
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      res.status(403).json({ message: "Invalid email or password" });
-      return;
+    const { username: email, password } = parsedData.data;
+
+    try {
+        const user = await prismaClient.user.findUnique({ where: { email } });
+        if (!user) {
+            res.status(403).json({ message: "Invalid email or password" });
+            return;
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            res.status(403).json({ message: "Invalid email or password" });
+            return;
+        }
+
+        let room = await prismaClient.room.findFirst({
+            where: { adminId: user.id },
+        });
+
+        if (!room) {
+            room = await prismaClient.room.create({
+                data: { slug: nanoid(12), adminId: user.id },
+            });
+        }
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+
+        res.json({
+            token,
+            user: { id: user.id, email: user.email, name: user.name },
+            roomSlug: room.slug,
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "An unexpected error occurred" });
     }
-
-    let room = await prismaClient.room.findFirst({
-      where: { adminId: user.id },
-    });
-
-    if (!room) {
-      room = await prismaClient.room.create({
-        data: { slug: nanoid(12), adminId: user.id },
-      });
-    }
-
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET);
-
-    res.json({
-      token,
-      user: { id: user.id, email: user.email, name: user.name },
-      roomSlug: room.slug,
-    });
-
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: "An unexpected error occurred" });
-  }
 });
 
 app.get("/shapes/:roomSlug", async (req: Request, res: Response): Promise<void> => {
