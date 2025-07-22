@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { PenTool } from 'lucide-react';
 import Link from 'next/link';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
   const [email, setEmail] = useState('');
