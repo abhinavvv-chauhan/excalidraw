@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { PenTool } from 'lucide-react';
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +28,9 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
     setLoading(true);
     setError('');
 
-    const endpoint = isSignin ? 'http://localhost:3001/signin' : 'http://localhost:3001/signup';
+    const endpoint = isSignin 
+      ? `${API_URL}/signin` 
+      : `${API_URL}/signup`;
     
     const body = isSignin 
       ? { username: email, password }
