@@ -11,6 +11,7 @@
     "@prisma/client": "6.2.1",
     "@repo/db": "workspace:*",
     "@types/bcrypt": "^5.0.2",
+    "@types/minimatch": "^6.0.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
