@@ -16,7 +16,7 @@ import { Prisma } from '@prisma/client';
 
 const app = express();
 app.use(express.json());
-const frontendURL = "https://excalidraw-ashy-pi.vercel.app";
+const frontendURL = "https://excalidraw-ten-gamma.vercel.app";
 app.use(cors({
     origin: frontendURL
 }));
