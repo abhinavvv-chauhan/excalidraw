@@ -1,5 +1,0 @@
-
-{
-  "buildCommand": "npm install && npx turbo build --filter=excalidraw-frontend",
-  "installCommand": "npm install"
-}
