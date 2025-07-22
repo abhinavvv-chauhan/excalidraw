@@ -1,13 +1,13 @@
 "use client";
-import { WS_URL } from "@/config";
+import { WS_URL, HTTP_BACKEND } from "@/config";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import { Canvas, Tool } from "./Canvas";
 import { Game } from "@/draw/Game";
 
 function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token');
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('auth_token');
 }
 
 export function RoomCanvas({ roomId }: { roomId: string }) {
@@ -46,6 +46,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         return () => ws.close();
     }, [roomId, router]);
 
+    
     const setGameInstance = useCallback((game: Game) => {
         if (!gameRef.current) {
             gameRef.current = game;
@@ -54,7 +55,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
                 setCanRedo(redoable);
             };
         }
-    }, []);
+    }, []); 
 
     useEffect(() => {
         if (textInput && textareaRef.current) {
