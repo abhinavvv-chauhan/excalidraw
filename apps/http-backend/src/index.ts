@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json());
 const frontendURL = "https://excalidraw-ten-gamma.vercel.app";
 app.use(cors({
-    origin: frontendURL
+    origin: true
 }));
 
 
