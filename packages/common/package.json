@@ -12,12 +12,15 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
-  },  
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/minimatch": "^6.0.0"
   }
 }
