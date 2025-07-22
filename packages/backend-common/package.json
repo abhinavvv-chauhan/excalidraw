@@ -13,9 +13,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@types/node": "^22.10.5"
-  },
-  "devDependencies": {
+    "@types/node": "^22.10.5",
     "@types/minimatch": "^6.0.0"
   }
 }
