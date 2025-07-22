@@ -39,17 +39,17 @@ const Header = () => {
     };
 
     return (
-        <header className="top-0 left-0 right-0 z-50 relative">
-            <div className="container mx-auto px-6 py-4 flex items-center justify-between relative z-10">
+        <header className="top-0 left-0 right-0 z-50 relative bg-gray-900/30 backdrop-blur-sm">
+            <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative z-10">
                 <Link href="/" className="flex items-center space-x-2">
-                    <PenTool className="h-9 w-9 text-white" />
-                    <span className="text-3xl font-bold text-white">Excalidraw</span>
+                    <PenTool className="h-7 w-7 md:h-9 md:w-9 text-white" />
+                    <span className="text-2xl md:text-3xl font-bold text-white">Excalidraw</span>
                 </Link>
                 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 md:space-x-4">
                     {user ? (
                         <>
-                            <form onSubmit={(e) => { e.preventDefault(); handleJoinSession(); }} className="flex items-center gap-2">
+                            <form onSubmit={(e) => { e.preventDefault(); handleJoinSession(); }} className="hidden md:flex items-center gap-2">
                                 <input
                                     type="text"
                                     value={joinSlug}
@@ -66,8 +66,8 @@ const Header = () => {
                                     Join
                                 </Button>
                             </form>
-                            <div className="w-px h-8 bg-gray-700"></div>
-                            <div className="flex items-center gap-3">
+                            <div className="hidden md:block w-px h-8 bg-gray-700"></div>
+                            <div className="flex items-center gap-2 md:gap-3">
                                 <div className="h-10 w-10 bg-gray-900 rounded-full cursor-default flex items-center justify-center text-white font-bold">
                                     {user.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={20} />}
                                 </div>
@@ -85,17 +85,17 @@ const Header = () => {
                         <>
                             <Link href={"/signin"}>
                                 <Button 
-                                    size="lg"
+                                    size="sm"
                                     variant="outline" 
-                                    className="text-gray-300 hover:text-white p-3 rounded-3xl border-none font-semibold font-sans text-lg cursor-pointer hover:bg-gray-800 hover:scale-105 transition-colors">
+                                    className="text-gray-300 hover:text-white px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl border-none font-semibold font-sans text-sm md:text-lg cursor-pointer hover:bg-gray-800 hover:scale-105 transition-colors">
                                     Sign In
                                 </Button>
                             </Link>
                             <Link href={"/signup"}>
                                 <Button 
-                                    size="lg"
+                                    size="sm" 
                                     variant="primary"
-                                    className="bg-amber-50 text-black hover:bg-gray-200 p-3 rounded-3xl cursor-pointer font-semibold text-lg font-sans transition-all transform hover:scale-105">
+                                    className="bg-amber-50 text-black hover:bg-gray-200 px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl cursor-pointer font-semibold text-sm md:text-lg font-sans transition-all transform hover:scale-105">
                                     Sign Up
                                 </Button>
                             </Link>
