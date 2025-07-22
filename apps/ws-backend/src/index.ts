@@ -3,20 +3,31 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../packages/backend-common/.env') });
 
+import express from 'express';
+import http from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/src';
 import { prismaClient } from "@repo/db/src";
 
-const wss = new WebSocketServer({ port: 8080 });
+const app = express();
+const server = http.createServer(app);
+
+const wss = new WebSocketServer({ server });
+
+const PORT = process.env.PORT || 8080;
 
 const rooms = new Map<string, Set<WebSocket>>();
-
 const userConnections = new Map<WebSocket, string>();
 
 interface UserJwtPayload {
     userId: string;
 }
+
+app.get('/', (req, res) => {
+  res.send('WebSocket server is running');
+});
+
 
 function checkUser(token: string): UserJwtPayload | null {
     try {
@@ -143,4 +154,6 @@ wss.on('connection', async function connection(ws, request) {
     });
 });
 
-console.log('WebSocket server started on port 8080');
+server.listen(PORT, () => {
+    console.log(`WebSocket server started on port ${PORT}`);
+});
