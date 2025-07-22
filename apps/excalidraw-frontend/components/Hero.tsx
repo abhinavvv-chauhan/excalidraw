@@ -96,15 +96,15 @@ const HeroActions = () => {
 export const Hero = () => {
     return (
         <section className="min-h-screen relative flex items-center justify-center px-6 overflow-hidden pt-32">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-600 to-gray-800 -z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-600 to-gray-800"></div>
             <div 
-                className="absolute inset-0 opacity-30 -z-10"
+                className="absolute inset-0 opacity-30"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                 }}
             ></div>
             
-            <div className="max-w-4xl text-center">
+            <div className="max-w-4xl text-center relative z-10">
                 <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 leading-tight">
                     Draw, Create,
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-white">
