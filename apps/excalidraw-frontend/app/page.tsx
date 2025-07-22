@@ -6,7 +6,7 @@ import { Hero } from '@/components/Hero';
 
 function App() {
   return (
-    <div className="">
+    <div className="relative bg-gray-800">
       <Header/>
       <Hero/>
       <Features/>

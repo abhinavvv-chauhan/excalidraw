@@ -39,8 +39,8 @@ const Header = () => {
     };
 
     return (
-        <header className="top-0 left-0 right-0 z-50 relative bg-gray-900/30 backdrop-blur-sm">
-            <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative z-10">
+        <header className="absolute top-0 left-0 right-0 z-50">
+            <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 <Link href="/" className="flex items-center space-x-2">
                     <PenTool className="h-7 w-7 md:h-9 md:w-9 text-white" />
                     <span className="text-2xl md:text-3xl font-bold text-white">Excalidraw</span>
@@ -55,7 +55,7 @@ const Header = () => {
                                     value={joinSlug}
                                     onChange={(e) => setJoinSlug(e.target.value)}
                                     placeholder="Enter room code..."
-                                    className="p-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all text-sm"
+                                    className="p-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all text-sm"
                                 />
                                 <Button
                                     size="sm"
@@ -93,7 +93,7 @@ const Header = () => {
                             </Link>
                             <Link href={"/signup"}>
                                 <Button 
-                                    size="sm" 
+                                    size="sm"
                                     variant="primary"
                                     className="bg-amber-50 text-black hover:bg-gray-200 px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl cursor-pointer font-semibold text-sm md:text-lg font-sans transition-all transform hover:scale-105">
                                     Sign Up
