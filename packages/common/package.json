@@ -18,9 +18,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
+    "zod": "^3.24.1",
     "@types/minimatch": "^6.0.0"
   }
+  
 }
