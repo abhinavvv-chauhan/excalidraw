@@ -25,6 +25,10 @@ app.use(cors({
 
 const SALT_ROUNDS = 10;
 
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({ message: "Server is healthy and running." });
+});
+
 app.post("/signup", async (req: Request, res: Response): Promise<void> => {
     const parsedData = CreateUserSchema.safeParse(req.body);
     if (!parsedData.success) {
