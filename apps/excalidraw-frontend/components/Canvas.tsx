@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
-import { Circle, Eraser, ArrowRight, Pencil, RectangleHorizontal, Triangle, Type, Hand, MousePointer2, Undo, Redo, Copy } from "lucide-react";
+import { Circle, Eraser, ArrowRight, Pencil, RectangleHorizontal, Triangle, Type, Hand, MousePointer, Undo, Redo, Copy } from "lucide-react";
 import { Game } from "@/draw/Game";
 
 export type Tool = "select" | "ellipse" | "rect" | "pencil" | "arrow" | "triangle" | "text" | "eraser" | "grab";
@@ -156,7 +156,7 @@ function Toolbar({selectedTool,setSelectedTool, onUndo, onRedo,canUndo, canRedo}
     return (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center bg-gray-800/70 backdrop-blur-sm border border-gray-700 rounded-xl p-2 shadow-lg">
             <div className="flex">
-                <IconButton onClick={() => setSelectedTool("select")} activated={selectedTool === "select"} icon={<MousePointer2 />} />
+                <IconButton onClick={() => setSelectedTool("select")} activated={selectedTool === "select"} icon={<MousePointer />} />
                 <IconButton onClick={() => setSelectedTool("grab")} activated={selectedTool === "grab"} icon={<Hand />} />
                 <IconButton onClick={() => setSelectedTool("pencil")} activated={selectedTool === "pencil"} icon={<Pencil />} />
                 <IconButton onClick={() => setSelectedTool("rect")} activated={selectedTool === "rect"} icon={<RectangleHorizontal />} />

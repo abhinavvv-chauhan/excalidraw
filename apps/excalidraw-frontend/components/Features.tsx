@@ -25,7 +25,7 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-24 bg-black-900 px-6">
+    <section className="py-24 bg-gray-900 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -55,3 +55,4 @@ const Features = () => {
 };
 
 export default Features;
+
