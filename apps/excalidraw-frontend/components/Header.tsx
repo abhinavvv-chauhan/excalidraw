@@ -3,33 +3,28 @@
 import { Button } from "@repo/ui/button";
 import { PenTool, User as UserIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface User {
-    id: string;
-    email: string;
-    name?: string;
-}
+import { useSession, signOut } from "next-auth/react";
 
 const Header = () => {
-    const [user, setUser] = useState<User | null>(null);
+    const { data: session } = useSession();
+    const user = session?.user;
+
     const [joinSlug, setJoinSlug] = useState('');
     const router = useRouter();
 
-    useEffect(() => {
-        const userInfo = localStorage.getItem("user_info");
-        if (userInfo) {
-            setUser(JSON.parse(userInfo));
-        }
-    }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("user_info");
-        localStorage.removeItem("personal_room_slug");
-        setUser(null);
-        window.location.reload(); 
+        signOut({
+          redirect: false, 
+        }).then(() => {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("user_info");
+          localStorage.removeItem("personal_room_slug");
+
+          router.replace('/');
+        });
     };
     
     const handleJoinSession = () => {
@@ -47,7 +42,7 @@ const Header = () => {
                 </Link>
                 
                 <div className="flex items-center space-x-2 md:space-x-4">
-                    {user ? (
+                    {session && user ? (
                         <>
                             <form onSubmit={(e) => { e.preventDefault(); handleJoinSession(); }} className="hidden md:flex items-center gap-2">
                                 <input

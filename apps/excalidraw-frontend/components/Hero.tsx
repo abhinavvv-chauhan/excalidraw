@@ -3,28 +3,26 @@
 import { Button } from "@repo/ui/button";
 import { ArrowRight, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { HTTP_BACKEND } from "@/config"; 
-
-function getLocalStorageItem(key: string): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(key);
-}
+import { useSession } from "next-auth/react";
+import { HTTP_BACKEND } from "@/config";
 
 const HeroActions = () => {
     const router = useRouter();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        if (getLocalStorageItem('auth_token')) {
-            setIsLoggedIn(true);
-        }
-    }, []);
+    // Use the entire session object as the single source of truth.
+    const { data: session, status } = useSession();
 
     const handleCreateSession = async () => {
-        const token = getLocalStorageItem('auth_token');
-        if (!token) {
+        // If the session is still loading or not authenticated, redirect to signin.
+        if (status !== 'authenticated') {
             router.push('/signin');
+            return;
+        }
+
+        // Get the token directly from the session object.
+        const token = session.backendToken;
+
+        if (!token) {
+            alert("Your session seems to be invalid. Please try logging out and back in.");
             return;
         }
 
@@ -38,10 +36,6 @@ const HeroActions = () => {
             });
 
             if (!res.ok) {
-                if (res.status === 401 || res.status === 403) {
-                    router.push('/signin');
-                    return;
-                }
                 throw new Error('Failed to create session');
             }
 
@@ -49,19 +43,21 @@ const HeroActions = () => {
             if (data.roomSlug) {
                 router.push(`/canvas/${data.roomSlug}`);
             }
-
         } catch (error) {
             console.error("Error creating session:", error);
+            // If creating a session fails, it might be due to an expired token.
+            router.push('/signin');
         }
     };
 
     const handleGoToCanvas = () => {
-        if (isLoggedIn) {
-            const personalSlug = getLocalStorageItem('personal_room_slug');
+        if (status === 'authenticated') {
+            // Get the slug directly from the session object, not localStorage.
+            const personalSlug = session.roomSlug;
             if (personalSlug) {
                 router.push(`/canvas/${personalSlug}`);
             } else {
-                router.push('/signin');
+                alert("Could not find your personal canvas. Please try logging out and back in.");
             }
         } else {
             router.push('/signin');
@@ -75,6 +71,8 @@ const HeroActions = () => {
                 variant="secondary"
                 className="bg-transparent border border-white text-white rounded-2xl cursor-pointer hover:bg-white hover:text-black font-semibold px-8 py-4 text-lg transition-all transform hover:scale-105 flex items-center gap-2"
                 onClick={handleGoToCanvas}
+                // Disable the button while the session is loading to prevent race conditions.
+                disabled={status === 'loading'}
             >
                 Go to My Canvas
                 <ArrowRight className="h-5 w-5" />
@@ -84,6 +82,8 @@ const HeroActions = () => {
                 variant="primary" 
                 className="bg-white text-black rounded-2xl cursor-pointer hover:bg-gray-200 font-semibold px-8 py-4 text-lg transition-all transform hover:scale-105 flex items-center gap-2"
                 onClick={handleCreateSession}
+                // Disable the button while the session is loading.
+                disabled={status === 'loading'}
             >
                 Create a Session
                 <Users className="h-5 w-5" />
@@ -92,10 +92,10 @@ const HeroActions = () => {
     );
 };
 
-
 export const Hero = () => {
     return (
         <section className="min-h-screen relative flex items-center justify-center px-6 overflow-hidden pt-32">
+            {/* The rest of your Hero component JSX remains the same */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-600 to-gray-800"></div>
             <div 
                 className="absolute inset-0 opacity-30"

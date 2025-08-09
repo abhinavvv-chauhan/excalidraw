@@ -1,17 +1,21 @@
+"use client";
 
 import { RoomCanvas } from "@/components/RoomCanvas";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useParams } from 'next/navigation'; 
 
-export default async function CanvasPage({ params }: {
-    params: Promise<{
-        roomId: string
-    }>
-}) {
-    const { roomId } = await params;
+export default function CanvasPage() {
+    const params = useParams();
+    const roomId = params.roomId as string;
+
+    if (!roomId) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">
+                Loading Room...
+            </div>
+        );
+    }
     
     return (
-        <ProtectedRoute>
-            <RoomCanvas roomId={roomId}/>
-        </ProtectedRoute>
+        <RoomCanvas roomId={roomId}/>
     );
 }

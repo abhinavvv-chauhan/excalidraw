@@ -17,9 +17,20 @@ import { Prisma } from '@prisma/client';
 const app = express();
 app.use(express.json());
 
-const frontendURL = "https://excalidraw-ten-gamma.vercel.app";
+const allowedOrigins = [
+    "https://excalidraw-ten-gamma.vercel.app", 
+    "http://localhost:3000"                     
+];
+
 app.use(cors({
-    origin: frontendURL
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
 }));
 
 
@@ -87,7 +98,7 @@ app.post("/signin", async (req: Request, res: Response): Promise<void> => {
 
     try {
         const user = await prismaClient.user.findUnique({ where: { email } });
-        if (!user) {
+        if (!user || !user.password) {
             res.status(403).json({ message: "Invalid email or password" });
             return;
         }
@@ -118,6 +129,56 @@ app.post("/signin", async (req: Request, res: Response): Promise<void> => {
 
     } catch (e) {
         console.error(e);
+        res.status(500).json({ message: "An unexpected error occurred" });
+    }
+});
+
+app.post("/auth/google", async (req: Request, res: Response): Promise<void> => {
+    const { email, name } = req.body;
+
+    if (!email) {
+        res.status(400).json({ message: "Email is required for Google Sign-In" });
+        return;
+    }
+
+    try {
+        let user = await prismaClient.user.findUnique({
+            where: { email },
+        });
+
+       
+        if (!user) {
+            user = await prismaClient.user.create({
+                data: {
+                    email,
+                    name: name || 'Excalidraw User',
+                },
+            });
+        }
+
+        let room = await prismaClient.room.findFirst({
+            where: { adminId: user.id },
+        });
+
+        if (!room) {
+            room = await prismaClient.room.create({
+                data: {
+                    slug: nanoid(12),
+                    adminId: user.id,
+                },
+            });
+        }
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+
+        res.status(200).json({
+            token,
+            user: { id: user.id, email: user.email, name: user.name },
+            roomSlug: room.slug,
+        });
+
+    } catch (e) {
+        console.error("Google Auth Backend Error:", e);
         res.status(500).json({ message: "An unexpected error occurred" });
     }
 });
