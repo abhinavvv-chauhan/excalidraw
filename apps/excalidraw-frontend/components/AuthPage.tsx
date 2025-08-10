@@ -8,6 +8,12 @@ import Link from 'next/link';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
+const AuthLoading = () => (
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-900 text-white">
+        Loading session...
+    </div>
+);
+
 const GoogleIcon = () => (
     <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48">
         <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
@@ -25,22 +31,13 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
   const [error, setError] = useState('');
   const router = useRouter();
   
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   useEffect(() => {
-    if (status === 'authenticated' && session) {
-      if (session.backendToken && session.roomSlug) {
-        localStorage.setItem('auth_token', session.backendToken);
-        localStorage.setItem('user_info', JSON.stringify(session.user));
-        localStorage.setItem('personal_room_slug', session.roomSlug);
-        
-        router.replace('/'); 
-      }
-    } 
-    else if (status === 'unauthenticated' && localStorage.getItem('auth_token')) {
-        router.replace('/');
+    if (status === 'authenticated') {
+      router.replace('/');
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
   const handleGoogleSignIn = () => {
     setLoading(true);
@@ -90,12 +87,8 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
     }
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gray-900 text-white">
-        Loading session...
-      </div>
-    );
+  if (status !== 'unauthenticated') {
+    return <AuthLoading />;
   }
 
   return (
@@ -103,7 +96,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
       <div 
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noisefilter)'/%3E%3C/svg%3E")`,
         }}
       ></div>
 
@@ -121,7 +114,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
           <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full p-3 mb-4 flex items-center cursor-pointer justify-center bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white disabled:opacity-50 disabled:scale-100"
+              className="w-full p-3 mb-4 flex items-center justify-center bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white disabled:opacity-50 disabled:scale-100"
           >
               <GoogleIcon />
               Sign {isSignin ? 'in' : 'up'} with Google
