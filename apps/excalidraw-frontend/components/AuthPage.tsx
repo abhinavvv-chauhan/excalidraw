@@ -114,7 +114,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
           <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full p-3 mb-4 flex items-center justify-center bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white disabled:opacity-50 disabled:scale-100"
+              className="w-full p-3 mb-4 cursor-pointer flex items-center justify-center bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white disabled:opacity-50 disabled:scale-100"
           >
               <GoogleIcon />
               Sign {isSignin ? 'in' : 'up'} with Google
