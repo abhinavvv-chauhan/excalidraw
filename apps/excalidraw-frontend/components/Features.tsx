@@ -1,4 +1,4 @@
-import { Zap, Users, Share, Smartphone } from "lucide-react";
+import { Zap, Users, Maximize, ShieldCheck } from "lucide-react";
 
 const Features = () => {
   const features = [
@@ -13,14 +13,14 @@ const Features = () => {
       description: "Work together with your team in real-time. See changes as they happen."
     },
     {
-      icon: Share,
-      title: "Export Anywhere",
-      description: "Export your drawings as PNG, SVG, or share with a simple link."
+      icon: Maximize,
+      title: "Infinite Canvas",
+      description: "Never run out of space. Expand your projects in any direction without limits."
     },
     {
-      icon: Smartphone,
-      title: "Works Everywhere",
-      description: "Draw on any device. Desktop, tablet, or mobile - it just works."
+      icon: ShieldCheck,
+      title: "Secure Auto-Save",
+      description: "Your work is protected. Every stroke is saved instantly so you never lose progress."
     }
   ];
 
@@ -38,7 +38,8 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:bg-gray-800/70 transition-all duration-300 hover:transform hover:scale-105">
+              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:bg-gray-800/70 transition-all duration-300 hover:transform hover:scale-105"
+            >
               <feature.icon className="h-12 w-12 text-white mb-6" />
               <h3 className="text-xl font-semibold text-white mb-4">
                 {feature.title}
@@ -55,4 +56,3 @@ const Features = () => {
 };
 
 export default Features;
-

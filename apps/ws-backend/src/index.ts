@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Load env from your common package as per your setup
 dotenv.config({ path: path.resolve(__dirname, '../../../packages/backend-common/.env') });
 
 import express from 'express';
@@ -9,12 +10,18 @@ import { WebSocket, WebSocketServer } from 'ws';
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/src';
 import { prismaClient } from "@repo/db/src";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// --- Gemini Initialization ---
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-flash",
+    generationConfig: { responseMimeType: "application/json" } 
+});
 
 const app = express();
 const server = http.createServer(app);
-
 const wss = new WebSocketServer({ server });
-
 const PORT = process.env.PORT || 8080;
 
 const rooms = new Map<string, Set<WebSocket>>();
@@ -24,10 +31,7 @@ interface UserJwtPayload {
     userId: string;
 }
 
-app.get('/', (req, res) => {
-  res.send('WebSocket server is running');
-});
-
+// --- Helper Functions (Moved to Top Level to fix 'Cannot find name' error) ---
 
 function checkUser(token: string): UserJwtPayload | null {
     try {
@@ -53,6 +57,8 @@ function broadcastToRoom(roomId: string, message: string, sender: WebSocket) {
     }
 }
 
+// --- Main WebSocket Logic ---
+
 wss.on('connection', async function connection(ws, request) {
     const url = request.url;
     if (!url) {
@@ -68,15 +74,12 @@ wss.on('connection', async function connection(ws, request) {
         return;
     }
     const userId = decodedToken.userId;
-
-    console.log('User connected:', userId);
     userConnections.set(ws, userId);
 
     ws.on('message', async function message(data) {
         try {
             const parsedData = JSON.parse(data.toString());
             const currentUserId = userConnections.get(ws);
-
             if (!currentUserId) return;
 
             switch (parsedData.type) {
@@ -86,7 +89,37 @@ wss.on('connection', async function connection(ws, request) {
                         rooms.set(roomId, new Set());
                     }
                     rooms.get(roomId)?.add(ws);
-                    console.log(`User ${currentUserId} joined room ${roomId}`);
+                    break;
+                }
+
+                // AI SMART SHAPE RECOGNITION CASE
+                case "ai_recognize": {
+                    const { roomId, imageB64, strokeId } = parsedData;
+
+                    const prompt = `
+                        Analyze this hand-drawn sketch. Identify if it is a circle, rectangle, triangle, or arrow.
+                        Return a JSON object with strictly this structure:
+                        {
+                          "shape": "circle" | "rectangle" | "triangle" | "arrow",
+                          "confidence": number,
+                          "properties": { "x": number, "y": number, "width": number, "height": number }
+                        }
+                    `;
+
+                    // Call Gemini API
+                    const result = await model.generateContent([
+                        prompt,
+                        { inlineData: { data: imageB64, mimeType: "image/png" } }
+                    ]);
+
+                    const aiResponse = JSON.parse(result.response.text());
+
+                    // Broadcast the smart shape back to everyone in the room
+                    broadcastToRoom(roomId, JSON.stringify({
+                        type: "ai_smart_shape",
+                        originalStrokeId: strokeId,
+                        smartShape: aiResponse
+                    }), ws);
                     break;
                 }
 
@@ -100,10 +133,7 @@ wss.on('connection', async function connection(ws, request) {
                     }), ws);
 
                     const room = await prismaClient.room.findUnique({ where: { slug: roomId } });
-                    if (!room) {
-                        console.error(`Room with slug ${roomId} not found.`);
-                        return;
-                    }
+                    if (!room) return;
 
                     if (messageContent.shape) {
                         const { id, type } = messageContent.shape;
@@ -121,7 +151,7 @@ wss.on('connection', async function connection(ws, request) {
                         try {
                             await prismaClient.shape.delete({ where: { id: messageContent.shapeId } });
                         } catch (e) {
-                            console.log(`Attempted to erase a shape that was already deleted: ${messageContent.shapeId}`);
+                            console.log(`Shape already deleted: ${messageContent.shapeId}`);
                         }
                     }
                     break;
@@ -133,24 +163,13 @@ wss.on('connection', async function connection(ws, request) {
     });
 
     ws.on('close', function close() {
-        const userId = userConnections.get(ws);
-        console.log('User disconnected:', userId);
-        
         rooms.forEach((clients, roomId) => {
             if (clients.has(ws)) {
                 clients.delete(ws);
-                if (clients.size === 0) {
-                    rooms.delete(roomId);
-                    console.log(`Room ${roomId} is now empty and has been closed.`);
-                }
+                if (clients.size === 0) rooms.delete(roomId);
             }
         });
-        
         userConnections.delete(ws);
-    });
-
-    ws.on('error', function error(err) {
-        console.error('WebSocket error:', err);
     });
 });
 

@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate --schema=../../packages/db/prisma/schema.prisma && tsc -b",
+    "build": "tsc -b",
     "start": "node ./dist/index.js",
     "dev": "npm run build && npm run start"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "6.2.1",
     "@repo/db": "workspace:*",
     "bcryptjs": "^3.0.2",

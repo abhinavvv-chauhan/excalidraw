@@ -10,7 +10,7 @@
     "./src/*": "./dist/*"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate",
     "dev": "tsc --watch",
     "db:generate": "prisma generate"
   },
