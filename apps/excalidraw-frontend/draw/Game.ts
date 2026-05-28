@@ -56,13 +56,13 @@ export type Shape = {
 export class Game {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    public existingShapes: Shape[] = [];
-    public roomId: string;
+    private existingShapes: Shape[] = [];
+    private roomId: string;
     private isDrawing = false;
     private startX = 0;
     private startY = 0;
     private selectedTool: Tool = "pencil";
-    public currentColor: string = "#ffffff";
+    private currentColor: string = "#ffffff";
     private currentPencilPoints: { x: number; y: number }[] = [];
     private isEraserActive = false;
     private eraserSize = 20;
@@ -152,8 +152,12 @@ export class Game {
     }
 
     private async init() {
-        const shapes = await getExistingShapes(this.roomId);
-        this.existingShapes = shapes;
+        try {
+            const shapes = await getExistingShapes(this.roomId);
+            this.existingShapes = shapes;
+        } catch (e) {
+            console.error("Skipping shape fetch due to error:", e);
+        }
         this.saveState();
         this.draw();
     }
@@ -163,7 +167,6 @@ export class Game {
             const message = JSON.parse(event.data);
             if (message.type === "chat") {
                 const content = JSON.parse(message.message);
-                
                 if (content.shape) {
                     const existingIndex = this.existingShapes.findIndex(s => s.id === content.shape.id);
                     if (existingIndex !== -1) {
@@ -174,7 +177,6 @@ export class Game {
                 } else if (content.action === 'erase' && content.shapeId) {
                     this.existingShapes = this.existingShapes.filter(s => s.id !== content.shapeId);
                 }
-                
                 this.draw();
             }
         };
@@ -418,7 +420,7 @@ export class Game {
         this.draw();
     }
 
-    public generateShapeId(): string {
+    private generateShapeId(): string {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
     
@@ -903,7 +905,7 @@ export class Game {
         }
     }
     
-    public saveState() {
+    private saveState() {
         this.history.splice(this.historyIndex + 1);
         this.history.push(JSON.parse(JSON.stringify(this.existingShapes)));
         this.historyIndex++;

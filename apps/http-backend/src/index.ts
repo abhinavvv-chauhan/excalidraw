@@ -13,9 +13,14 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import { nanoid } from 'nanoid';
 import { Prisma } from '@prisma/client';
+// ✨ NEW: Import the Google Generative AI SDK
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
-app.use(express.json());
+
+// ✨ CRUCIAL FIX: Increase the JSON payload limit to 50mb. 
+// Base64 images are large, and the default 100kb limit will crash the server!
+app.use(express.json({ limit: '50mb' }));
 
 const allowedOrigins = [
     "https://excalidraw-ten-gamma.vercel.app", 
@@ -36,9 +41,60 @@ app.use(cors({
 
 const SALT_ROUNDS = 10;
 
+// ✨ NEW: Initialize Google Gemini API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({ message: "Server is healthy and running." });
 });
+
+// ✨ NEW: Diagram to Code AI Endpoint
+app.post("/api/ai/diagram-to-code", async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { image } = req.body; // This will be a base64 string from the frontend canvas
+
+        if (!image) {
+            res.status(400).json({ message: "No image provided" });
+            return;
+        }
+
+        // Clean the base64 string (remove the data:image/png;base64, prefix)
+        const base64Data = image.replace(/^data:image\/(png|jpeg);base64,/, "");
+
+        // Use the Gemini 1.5 Flash model (Fast, Multimodal, and generous free tier)
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `
+        You are an expert frontend developer. 
+        Look at this wireframe/diagram drawn on a digital whiteboard.
+        Convert this drawing into a functional, single-file React component using Tailwind CSS.
+        
+        Rules:
+        1. Use modern React (functional components).
+        2. Use Tailwind CSS for all styling.
+        3. Make reasonable assumptions about layout, colors, and functionality based on the drawing.
+        4. Return ONLY the raw code. Do not include markdown codeblocks (like \`\`\`tsx) or conversational text. Just the code.
+        `;
+
+        const result = await model.generateContent([
+            prompt,
+            {
+                inlineData: {
+                    data: base64Data,
+                    mimeType: "image/png"
+                }
+            }
+        ]);
+
+        const code = result.response.text();
+
+        res.json({ code });
+    } catch (e) {
+        console.error("AI Generation Error:", e);
+        res.status(500).json({ message: "Failed to generate code from diagram" });
+    }
+});
+
 
 app.post("/signup", async (req: Request, res: Response): Promise<void> => {
     const parsedData = CreateUserSchema.safeParse(req.body);

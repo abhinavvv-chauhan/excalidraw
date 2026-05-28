@@ -1,104 +1,119 @@
 "use client";
 
-import { Button } from "@repo/ui/button";
 import { PenTool, User as UserIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export const FloatingNav = ({
+  navItems,
+  className,
+}: {
+  navItems: {
+    name: string;
+    link?: string;
+    onClick?: () => void;
+    icon?: JSX.Element;
+  }[];
+  className?: string;
+}) => {
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 1, y: -100 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className={cn(
+          "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-white/[0.2] rounded-full bg-black/80 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-8 py-2 items-center justify-center space-x-4",
+          className
+        )}
+      >
+        {navItems.map((navItem: any, idx: number) => {
+          if (navItem.onClick) {
+            return (
+              <button
+                key={`link=${idx}`}
+                onClick={navItem.onClick}
+                className="border text-sm font-medium relative border-white/[0.2] text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <span className="block sm:hidden">{navItem.icon}</span>
+                <span className="hidden sm:block text-sm">{navItem.name}</span>
+              </button>
+            );
+          }
+          return (
+            <Link
+              key={`link=${idx}`}
+              href={navItem.link || ""}
+              className={cn(
+                "relative text-neutral-50 items-center flex space-x-1 hover:text-neutral-300"
+              )}
+            >
+              <span className="block sm:hidden">{navItem.icon}</span>
+              <span className="hidden sm:block text-sm">{navItem.name}</span>
+            </Link>
+          );
+        })}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+interface User {
+    id: string;
+    email: string;
+    name?: string;
+}
 
 const Header = () => {
-    const { data: session } = useSession();
-    const user = session?.user;
-
-    const [joinSlug, setJoinSlug] = useState('');
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
+    useEffect(() => {
+        const userInfo = localStorage.getItem("user_info");
+        if (userInfo) {
+            setUser(JSON.parse(userInfo));
+        }
+    }, []);
 
     const handleLogout = () => {
-        signOut({
-          redirect: false, 
-        }).then(() => {
-          localStorage.removeItem("auth_token");
-          localStorage.removeItem("user_info");
-          localStorage.removeItem("personal_room_slug");
-
-          router.replace('/');
-        });
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user_info");
+        localStorage.removeItem("personal_room_slug");
+        setUser(null);
+        router.push('/');
     };
-    
-    const handleJoinSession = () => {
-        if (joinSlug.trim()) {
-            router.push(`/canvas/${joinSlug.trim()}`);
+
+    const handleGoToCanvas = () => {
+        const personalSlug = localStorage.getItem('personal_room_slug');
+        if (personalSlug) {
+            router.push(`/canvas/${personalSlug}`);
+        } else {
+            router.push('/signin');
         }
     };
 
+    const navItems = user
+      ? [
+          { name: "My Canvas", onClick: handleGoToCanvas },
+          { name: "Logout", onClick: handleLogout },
+        ]
+      : [
+          { name: "Sign In", link: "/signin" },
+          { name: "Sign Up", link: "/signup" },
+        ];
+
     return (
-        <header className="absolute top-0 left-0 right-0 z-50">
-            <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-                <Link href="/" className="flex items-center space-x-2">
-                    <PenTool className="h-7 w-7 md:h-9 md:w-9 text-white" />
-                    <span className="text-2xl md:text-3xl font-bold text-white">Excalidraw</span>
-                </Link>
-                
-                <div className="flex items-center space-x-2 md:space-x-4">
-                    {session && user ? (
-                        <>
-                            <form onSubmit={(e) => { e.preventDefault(); handleJoinSession(); }} className="hidden md:flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={joinSlug}
-                                    onChange={(e) => setJoinSlug(e.target.value)}
-                                    placeholder="Enter room code..."
-                                    className="p-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all text-sm"
-                                />
-                                <Button
-                                    size="sm"
-                                    variant="primary"
-                                    className="bg-white text-black h-9 hover:bg-gray-200 p-2 rounded-lg cursor-pointer font-semibold text-sm transition-all"
-                                    onClick={handleJoinSession}
-                                >
-                                    Join
-                                </Button>
-                            </form>
-                            <div className="hidden md:block w-px h-8 bg-gray-700"></div>
-                            <div className="flex items-center gap-2 md:gap-3">
-                                <div className="h-10 w-10 bg-gray-900 rounded-full cursor-default flex items-center justify-center text-white font-bold">
-                                    {user.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={20} />}
-                                </div>
-                                <Button 
-                                    onClick={handleLogout}
-                                    size="sm"
-                                    variant="outline" 
-                                    className="text-gray-300 hover:text-white p-2 rounded-lg border-none font-semibold cursor-pointer hover:bg-gray-800 transition-colors"
-                                >
-                                    Logout
-                                </Button>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <Link href={"/signin"}>
-                                <Button 
-                                    size="sm"
-                                    variant="outline" 
-                                    className="text-gray-300 hover:text-white px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl border-none font-semibold font-sans text-sm md:text-lg cursor-pointer hover:bg-gray-800 hover:scale-105 transition-colors">
-                                    Sign In
-                                </Button>
-                            </Link>
-                            <Link href={"/signup"}>
-                                <Button 
-                                    size="sm"
-                                    variant="primary"
-                                    className="bg-amber-50 text-black hover:bg-gray-200 px-3 py-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl cursor-pointer font-semibold text-sm md:text-lg font-sans transition-all transform hover:scale-105">
-                                    Sign Up
-                                </Button>
-                            </Link>
-                        </>
-                    )}
-                </div>
-            </div>
-        </header>
+        <div className="relative w-full">
+             <FloatingNav navItems={navItems} />
+        </div>
     );
 };
 

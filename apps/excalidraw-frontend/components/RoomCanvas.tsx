@@ -126,7 +126,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     };
 
     if (error) return <div className="flex items-center justify-center h-screen text-red-500">{error}</div>;
-    if (isConnecting || !socket) return <div className="flex items-center justify-center h-screen">Connecting...</div>;
+    if (isConnecting || !socket) return <div className="flex items-center justify-center h-screen text-white">Connecting...</div>;
 
     return (
         <div className="relative w-full h-screen overflow-hidden">
