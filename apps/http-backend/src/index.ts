@@ -12,7 +12,6 @@ import { prismaClient } from "@repo/db";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import { nanoid } from 'nanoid';
-import { Prisma } from '@prisma/client';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
@@ -235,7 +234,7 @@ app.post("/auth/google", async (req: Request, res: Response): Promise<void> => {
 
 app.get("/shapes/:roomSlug", async (req: Request, res: Response): Promise<void> => {
     try {
-        const { roomSlug } = req.params;
+        const roomSlug = req.params.roomSlug as string;
 
         const room = await prismaClient.room.findUnique({
             where: { slug: roomSlug },
@@ -322,7 +321,7 @@ app.get("/chats/:roomId", async (req: Request, res: Response): Promise<void> => 
 })
 
 app.get("/room/:slug", async (req: Request, res: Response): Promise<void> => {
-    const slug = req.params.slug;
+    const slug = req.params.slug as string;
     const room = await prismaClient.room.findFirst({
         where: {
             slug
