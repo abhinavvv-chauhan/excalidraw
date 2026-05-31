@@ -6,20 +6,18 @@ dotenv.config({ path: path.resolve(__dirname, '../../../packages/backend-common/
 import express, { Request, Response, NextFunction } from "express";
 import { authMiddleware } from "./middleware";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from '@repo/backend-common/src';
-import { CreateUserSchema, SigninSchema, CreateRoomSchema } from "@repo/common/src/types";
-import { prismaClient } from "@repo/db/src";
+import { JWT_SECRET } from '@repo/backend-common';
+import { CreateUserSchema, SigninSchema, CreateRoomSchema } from "@repo/common";
+import { prismaClient } from "@repo/db";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import { nanoid } from 'nanoid';
 import { Prisma } from '@prisma/client';
-// ✨ NEW: Import the Google Generative AI SDK
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 
-// ✨ CRUCIAL FIX: Increase the JSON payload limit to 50mb. 
-// Base64 images are large, and the default 100kb limit will crash the server!
+
 app.use(express.json({ limit: '50mb' }));
 
 const allowedOrigins = [
@@ -41,27 +39,23 @@ app.use(cors({
 
 const SALT_ROUNDS = 10;
 
-// ✨ NEW: Initialize Google Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({ message: "Server is healthy and running." });
 });
 
-// ✨ NEW: Diagram to Code AI Endpoint
 app.post("/api/ai/diagram-to-code", async (req: Request, res: Response): Promise<void> => {
     try {
-        const { image } = req.body; // This will be a base64 string from the frontend canvas
+        const { image } = req.body; 
 
         if (!image) {
             res.status(400).json({ message: "No image provided" });
             return;
         }
 
-        // Clean the base64 string (remove the data:image/png;base64, prefix)
         const base64Data = image.replace(/^data:image\/(png|jpeg);base64,/, "");
 
-        // Use the Gemini 1.5 Flash model (Fast, Multimodal, and generous free tier)
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `

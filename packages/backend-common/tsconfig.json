@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",        // ← Make sure this points to ./dist
-    "rootDir": "./src",        // ← Make sure this points to ./src
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",       
+    "rootDir": "./src",        
     "target": "es2020",
     "module": "commonjs",
     "strict": true,
@@ -10,6 +12,6 @@
     "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],     // ← Include only src files
+  "include": ["src/**/*"],     
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
